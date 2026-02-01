@@ -7,15 +7,15 @@ import FormattedDate from '../../components/FormattedDate.astro';
 import Header from '../../components/Header.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
 
-const posts = (await getCollection('blog')).sort(
+const posts = (await getCollection('diary')).sort(
 	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="ko">
 	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+		<BaseHead title="일기 | 위재영의 블로그" description="일상의 기록들" />
 		<style>
 			main {
 				width: 960px;
@@ -90,11 +90,13 @@ const posts = (await getCollection('blog')).sort(
 		<Header />
 		<main>
 			<section>
+				<h1>📔 일기</h1>
+				<p>일상의 소소한 기록들</p>
 				<ul>
 					{
 						posts.map((post) => (
 							<li>
-								<a href={`/blog/${post.id}/`}>
+								<a href={`/diary/${post.id}/`}>
 									{post.data.heroImage && (
 										<Image width={720} height={360} src={post.data.heroImage} alt="" />
 									)}
