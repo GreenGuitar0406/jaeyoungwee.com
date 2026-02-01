@@ -1,115 +1,108 @@
 ---
-import { Image } from 'astro:assets';
 import { getCollection } from 'astro:content';
-import BaseHead from '../../components/BaseHead.astro';
-import Footer from '../../components/Footer.astro';
-import FormattedDate from '../../components/FormattedDate.astro';
-import Header from '../../components/Header.astro';
+import { Image } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
 
-const posts = (await getCollection('music')).sort(
-	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
-);
+const allAlbums = await getCollection('music');
+// 날짜순 정렬
+const albums = allAlbums.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 ---
 
-<!doctype html>
-<html lang="ko">
-	<head>
-		<BaseHead title="음악 | 위재영의 블로그" description="좋아하는 음악들" />
-		<style>
-			main {
-				width: 960px;
-			}
-			ul {
-				display: flex;
-				flex-wrap: wrap;
-				gap: 2rem;
-				list-style-type: none;
-				margin: 0;
-				padding: 0;
-			}
-			ul li {
-				width: calc(50% - 1rem);
-			}
-			ul li * {
-				text-decoration: none;
-				transition: 0.2s ease;
-			}
-			ul li:first-child {
-				width: 100%;
-				margin-bottom: 1rem;
-				text-align: center;
-			}
-			ul li:first-child img {
-				width: 100%;
-			}
-			ul li:first-child .title {
-				font-size: 2.369rem;
-			}
-			ul li img {
-				margin-bottom: 0.5rem;
-				border-radius: 12px;
-			}
-			ul li a {
-				display: block;
-			}
-			.title {
-				margin: 0;
-				color: rgb(var(--black));
-				line-height: 1;
-			}
-			.date {
-				margin: 0;
-				color: rgb(var(--gray));
-			}
-			ul li a:hover h4,
-			ul li a:hover .date {
-				color: rgb(var(--accent));
-			}
-			ul a:hover img {
-				box-shadow: var(--box-shadow);
-			}
-			@media (max-width: 720px) {
-				ul {
-					gap: 0.5em;
-				}
-				ul li {
-					width: 100%;
-					text-align: center;
-				}
-				ul li:first-child {
-					margin-bottom: 0;
-				}
-				ul li:first-child .title {
-					font-size: 1.563em;
-				}
-			}
-		</style>
-	</head>
-	<body>
-		<Header />
-		<main>
-			<section>
-				<h1>🎵 음악</h1>
-				<p>좋아하는 음악과 플레이리스트를 공유합니다.</p>
-				<ul>
-					{
-						posts.map((post) => (
-							<li>
-								<a href={`/music/${post.id}/`}>
-									{post.data.heroImage && (
-										<Image width={720} height={360} src={post.data.heroImage} alt="" />
-									)}
-									<h4 class="title">{post.data.title}</h4>
-									<p class="date">
-										<FormattedDate date={post.data.pubDate} />
-									</p>
-								</a>
-							</li>
-						))
-					}
-				</ul>
-			</section>
-		</main>
-		<Footer />
-	</body>
-</html>
+<BaseLayout title="음악 | 위재영의 블로그" description="좋아하는 음악들">
+  <div class="container">
+    <header>
+      <h1>Music Archive</h1>
+      <p>내가 즐겨 듣는 앨범 기록</p>
+    </header>
+
+    <div class="topster-grid">
+      {albums.map((album) => (
+        <a href={`/music/${album.id}`} class="album-card">
+          <Image 
+            src={album.data.cover} 
+            alt={`${album.data.artist} - ${album.data.title}`}
+            width={600}
+            height={600}
+          />
+          <div class="album-info">
+            <span class="artist">{album.data.artist}</span>
+            <span class="title">{album.data.title}</span>
+            {album.data.rating && <span class="rating">{"★".repeat(album.data.rating)}</span>}
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  header p {
+    color: rgb(var(--gray));
+    font-size: 1.1rem;
+  }
+
+  .topster-grid {
+    display: grid;
+    /* 한 줄에 3개에서 5개까지 유동적으로 조절 */
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 15px;
+    margin-top: 2rem;
+  }
+
+  .album-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 4px;
+    background: #000;
+    aspect-ratio: 1 / 1;
+    transition: transform 0.2s ease;
+    display: block;
+    text-decoration: none;
+  }
+
+  .album-card :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .album-card:hover {
+    transform: scale(1.03);
+    z-index: 10;
+  }
+
+  /* 앨범 정보 오버레이 효과 */
+  .album-info {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 10px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    color: white;
+  }
+
+  .album-card:hover .album-info {
+    opacity: 1;
+  }
+
+  .artist { font-size: 0.8rem; font-weight: bold; }
+  .title { font-size: 0.7rem; margin-top: 4px; opacity: 0.9; }
+  .rating { color: #ffd700; margin-top: 5px; font-size: 0.8rem; }
+</style>

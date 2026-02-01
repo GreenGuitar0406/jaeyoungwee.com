@@ -1,0 +1,39 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+
+interface Props {
+	title: string;
+	description?: string;
+}
+
+const { title, description = 'Welcome to my website!' } = Astro.props;
+---
+
+<!doctype html>
+<html lang="ko">
+	<head>
+		<BaseHead title={title} description={description} />
+	</head>
+	<body>
+		<Header />
+		<main>
+			<slot />
+		</main>
+		<Footer />
+	</body>
+</html>
+
+<style is:global>
+	main {
+		width: 960px;
+		max-width: calc(100% - 2rem);
+		margin: auto;
+		padding: 2rem 1rem;
+	}
+	
+	.container {
+		width: 100%;
+	}
+</style>
